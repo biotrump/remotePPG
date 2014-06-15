@@ -52,8 +52,9 @@ a--cascade="d:\\repos\\openCV\\win\\opencv\\data\\haarcascades\\haarcascade_fron
 //String face_cascade_name = "d:\\repos\\openCV\\win\\opencv\\data\\haarcascades\\haarcascade_frontalface_alt_tree.xml";
 //String eyes_cascade_name = "d:\\repos\\openCV\\win\\opencv\\data\\haarcascades\\haarcascade_eye.xml";
 //String face_cascade_name = "d:\\repos\\openCV\\win\\opencv\\data\\lbpcascades\\lbpcascade_frontalface.xml";//lbpcascade_profileface.xml";
-String eyes_cascade_name = "haarcascade_eye.xml";
-String face_cascade_name = "lbpcascade_frontalface.xml";//lbpcascade_profileface.xml";
+String eyes_cascade_name = "g:\\repos\\openCV\\work\\data\\haarcascades\\haarcascade_eye.xml";
+//String face_cascade_name = "lbpcascade_frontalface.xml";//lbpcascade_profileface.xml";
+String face_cascade_name = "g:\\repos\\openCV\\work\\data\\haarcascades\\haarcascade_frontalface_alt2.xml";//lbpcascade_profileface.xml";
 #endif
 
 #if defined(__linux__) || defined(LINUX) || defined(__APPLE__) || defined(ANDROID)
