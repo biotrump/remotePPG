@@ -27,7 +27,7 @@
 
 #define RAW_TRACE_ADJ(x,m,s, off_y)		(RAWTRACE(x,m,s)*-30.0 + off_y )
 
-//filter 
+//filter
 // high pass filter : respiration rate 6bpm = 6/60 = 0.1hz (>= 0.1hz is allowed)
 // low pass filter : HR up to 210bpm = 210/60=3.5hz (>= 3.5hz is filterted)
 using namespace std;
@@ -58,11 +58,105 @@ string window_name = "RGB";
 
 //RNG rng(12345);
 
+//CvFileStorage
+#if 1
+inline std::string ExtractDirectory( const std::string& path )
+{
+  return path.substr( 0, path.find_last_of( '\\' ) +1 );
+}
+
+inline std::string ExtractFullFilename( const std::string& path )
+{
+  return path.substr( path.find_last_of( '\\' ) +1 );
+}
+
+inline std::string ExtractFilename( const std::string& path )
+{
+	std::string filename = ExtractFullFilename( path );
+	return filename.substr( 0, filename.find_last_of( '.' ) );
+}
+
+inline std::string ExtractFileExtname( const std::string& path )
+{
+  return path.substr( path.find_last_of( '\\' ) +1 );
+}
+
+inline std::string ChangeExtension( const std::string& path, const std::string& ext )
+{
+  std::string filename = ExtractFullFilename( path );
+  return ExtractDirectory( path ) +filename.substr( 0, filename.find_last_of( '.' ) ) +ext;
+}
+#endif
+
+#if defined(__linux__) || defined(LINUX) || defined(__APPLE__) || defined(ANDROID)
+void writeMatToFile(cv::Mat& m, const char* filename)
+{
+    std::ofstream fout(filename);
+
+    if(!fout)
+    {
+        cout<<"File Not Opened"<<endl;  return;
+    }
+
+    for(int i=0; i<m.rows; i++)
+    {
+        for(int j=0; j<m.cols; j++)
+        {
+            fout<<m.at<float>(i,j)<<"\t";
+        }
+        fout<<endl;
+    }
+
+    fout.close();
+}
+#endif
+
+Scalar splitRGB(Mat in, bool bShowRGB=false)
+{
+
+	//cap.set(CV_CAP_PROP_FRAME_WIDTH, 250);
+	//cap.set(CV_CAP_PROP_FRAME_HEIGHT, 250);
+
+	//cout << "Frame width: " << cap.get(CV_CAP_PROP_FRAME_WIDTH) << endl;
+	//cout << "Frame height: " << cap.get(CV_CAP_PROP_FRAME_HEIGHT) << endl;
+
+
+	//Mat in;
+	cv::Scalar mean_rgb;
+	if(bShowRGB){
+		vector<Mat> rgb;
+		//cap >> in;
+
+		//create 4 elements/channels array
+		rgb.push_back( Mat(in.rows, in.cols, CV_8UC1));
+		rgb.push_back( Mat(in.rows, in.cols, CV_8UC1));
+		rgb.push_back( Mat(in.rows, in.cols, CV_8UC1));
+		//rgb.push_back( Mat(in.rows, in.cols, CV_8UC1));
+
+		namedWindow("original", 1);
+		namedWindow("red", 1);
+		namedWindow("green", 1);
+		namedWindow("blue", 1);
+
+		//cap >> in;
+		imshow("original", in);
+
+		split(in, rgb); //in frame is splitted to follow BGR order in OpenCV
+		imshow("red", rgb.at(2));
+		imshow("green", rgb.at(1));
+		imshow("blue", rgb.at(0));
+	}
+	mean_rgb=cv::mean(in);
+
+	//if(waitKey(30) >= 0) break;
+	return mean_rgb;
+}
+
 /**
  * @function main
  * param -f: face cascade classfier
  *		 	-e: eye cascade classfier
- *		 	-Cnnn: index of camera ,-1(auto),0,1,2 camera index 
+ *		 	-Cnnn: index of camera ,-1(auto),0,1,2 camera index
  *			-Fpath: a static piture or motion picture file
  */
 int main( int argc, char *argv[] )
@@ -70,6 +164,7 @@ int main( int argc, char *argv[] )
 	VideoCapture vc;
 	//VideoCapture vc("face.mp4");//vc(0);
 	//VideoCapture vc("d:\\vs\\openCV\\ObjectDetect\\FaceDetect\\baby.mp4");
+	std:string meanRGBFileName;
 
 	if(argc>1){
 		int index=-1;
@@ -85,6 +180,9 @@ int main( int argc, char *argv[] )
 				if(!vc.open(argv[i]+2)){
 					cout << " open media file"<< argv[i]+2 <<" failed." <<endl;
 				}
+				//meanRGBFileName = ExtractFilename(argv[i]+2);
+				//store the data to xml
+				meanRGBFileName = ChangeExtension(argv[i]+2, ".xml");
 				break;
 			/*
 			case 'f':
@@ -131,17 +229,23 @@ int main( int argc, char *argv[] )
 		int64 w_stick=0,w_etick=0, w_pre_delta=0;
 
 		namedWindow( window_name);
+
 		vfps = vc.get(CV_CAP_PROP_FPS);
 		fperms = 1000.0 / vfps;
 		width = vc.get(CV_CAP_PROP_FRAME_WIDTH);
 		height = vc.get(CV_CAP_PROP_FRAME_HEIGHT);
 		frame_ticks = tick_psec/vfps;
-		
+
+
 		for(;;){
 			f_stick = cv::getTickCount();
+			Scalar mean_rgb;
 			vc >> frame; 	//get one frame
 	      	if(  !frame.empty() ){
 				frame_no++;
+				//splitRGB(frame);
+				mean_rgb=cv::mean(frame);
+
 				//fine tune the delay to fixed fps as the video file's original fps.
 				f_etick = cv::getTickCount();
 				if(f_etick > cur_tick){
