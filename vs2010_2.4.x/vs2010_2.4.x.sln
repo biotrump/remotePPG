@@ -5,6 +5,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "rPPG-static", "rPPG-static\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "videoplay-static", "videoplay\videoplay-static.vcxproj", "{E9AEEF0F-F420-43F5-BECA-B117DAA1A21A}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "videoRGB-static", "videoRGB\videoRGB-static.vcxproj", "{511874B1-B84D-4602-8C7A-56585FD1C9F1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -29,6 +31,14 @@ Global
 		{E9AEEF0F-F420-43F5-BECA-B117DAA1A21A}.Release|Win32.Build.0 = Release|Win32
 		{E9AEEF0F-F420-43F5-BECA-B117DAA1A21A}.Release|x64.ActiveCfg = Release|x64
 		{E9AEEF0F-F420-43F5-BECA-B117DAA1A21A}.Release|x64.Build.0 = Release|x64
+		{511874B1-B84D-4602-8C7A-56585FD1C9F1}.Debug|Win32.ActiveCfg = Debug|Win32
+		{511874B1-B84D-4602-8C7A-56585FD1C9F1}.Debug|Win32.Build.0 = Debug|Win32
+		{511874B1-B84D-4602-8C7A-56585FD1C9F1}.Debug|x64.ActiveCfg = Debug|x64
+		{511874B1-B84D-4602-8C7A-56585FD1C9F1}.Debug|x64.Build.0 = Debug|x64
+		{511874B1-B84D-4602-8C7A-56585FD1C9F1}.Release|Win32.ActiveCfg = Release|Win32
+		{511874B1-B84D-4602-8C7A-56585FD1C9F1}.Release|Win32.Build.0 = Release|Win32
+		{511874B1-B84D-4602-8C7A-56585FD1C9F1}.Release|x64.ActiveCfg = Release|x64
+		{511874B1-B84D-4602-8C7A-56585FD1C9F1}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

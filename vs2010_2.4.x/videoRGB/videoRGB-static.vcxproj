@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{0B184D87-36CE-4027-B25E-F9735B90BB16}</ProjectGuid>
+    <ProjectGuid>{511874B1-B84D-4602-8C7A-56585FD1C9F1}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>rPPGstatic</RootNamespace>
   </PropertyGroup>
@@ -142,8 +142,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\discrete_fourier_transform.cpp" />
-    <ClCompile Include="..\..\objectDetection2.cpp" />
+    <ClCompile Include="..\..\videoRGB.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

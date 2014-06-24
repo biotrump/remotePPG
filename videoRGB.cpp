@@ -1,5 +1,5 @@
 /**
- * @file videoPlay.cpp
+ * @file videoRGB.cpp
  * @author Thomas Tsai thomas@life100.cc
  * @brief A simplified version of facedetect.cpp, show how to load a cascade classifier and how to find objects (Face + eyes) in a video stream - Using LBP here
  */
@@ -52,11 +52,11 @@ String face_cascade_name = "../../2.4.7/data/lbpcascades/lbpcascade_frontalface.
 #endif
 
 //String eyes_cascade_name = "d:\\repos\\openCV\\win\\opencv\\data\\haarcascades\\haarcascade_eye_tree_eyeglasses.xml";
-CascadeClassifier face_cascade;
-CascadeClassifier eyes_cascade;
-string window_name = "playing";
+//CascadeClassifier face_cascade;
+//CascadeClassifier eyes_cascade;
+string window_name = "RGB";
 
-RNG rng(12345);
+//RNG rng(12345);
 
 /**
  * @function main
@@ -86,12 +86,14 @@ int main( int argc, char *argv[] )
 					cout << " open media file"<< argv[i]+2 <<" failed." <<endl;
 				}
 				break;
+			/*
 			case 'f':
 				face_cascade_name = argv[i]+2;
 				break;
 			case 'e':
 				eyes_cascade_name = argv[i]+2;
 				break;
+				*/
 			default:
 				break;
 			}
@@ -105,12 +107,13 @@ int main( int argc, char *argv[] )
 	}
 
   	//-- 1. Load the cascade
-  	if( !face_cascade.load( face_cascade_name ) ){ printf("--(!)Error loading %s\n", face_cascade_name); return -1; };
-  	if( !eyes_cascade.load( eyes_cascade_name ) ){ printf("--(!)Error loading %s\n", eyes_cascade_name); return -1; };
+  	//if( !face_cascade.load( face_cascade_name ) ){ printf("--(!)Error loading %s\n", face_cascade_name); return -1; };
+  	//if( !eyes_cascade.load( eyes_cascade_name ) ){ printf("--(!)Error loading %s\n", eyes_cascade_name); return -1; };
 
   	//-- 2. Read the video stream
 	if(vc.isOpened())
   	{
+		bool bWaitKey=false;
 		Mat frame;
 		double tick_psec=cv::getTickFrequency();
 		int width,height, t_width, t_height,baseline=0;
@@ -173,7 +176,7 @@ _waitkey:
 			wk_ms = 1000.0 * (((double)frame_ticks - temp_delta) / tick_psec);
 			wk_ms = (wk_ms > (int)fperms)?(int)fperms:wk_ms;
 		}else wk_ms=fperms;
-		int c = waitKey(wk_ms);
+		int c = waitKey(bWaitKey?wk_ms:1);
 		w_etick = cv::getTickCount();
 		double d_fps= vfps - fps;
 		double d_comp_ticks= d_fps/vfps * frame_ticks;
