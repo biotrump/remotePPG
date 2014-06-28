@@ -67,7 +67,6 @@ CascadeClassifier face_cascade;
 CascadeClassifier eyes_cascade;
 string window_name = "Capture - Face detection";
 
-
 RNG rng(12345);
 
 #if 0
@@ -198,7 +197,7 @@ size_t detectFaceROI( Mat &frame, cv::Scalar &avgRGBValue, Rect & roi_new )
 	equalizeHist( frame_gray, frame_gray );
 	
 	//-- Detect faces
-	face_cascade.detectMultiScale( frame_gray, faces, 1.2, 3, 0, Size(80, 80) );
+	face_cascade.detectMultiScale( frame_gray, faces, 1.2, 3, 0, Size(20, 20),Size(frame_gray.size, 240) );
 	
 	//for( size_t i = 0; i < faces.size(); i++ )
 	size_t i=0;
