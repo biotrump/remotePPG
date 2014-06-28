@@ -162,17 +162,19 @@ size_t SearchLockFaceDetection(Mat &frame, cv::Scalar &rgbMean, Rect & roi_new, 
 			pre_roi.y += lock_roi.y;
 		pre_roi.width = faces[0].width;
 		pre_roi.height = faces[0].height;
-		//cout << "(x,y,w,h)=(" << pre_roi.x <<"," << pre_roi.y << "," << pre_roi.width << ",";
-		//cout << pre_roi.height <<")" <<endl;
-		cout << "(r,g,b)=(" << rgbMean[0] <<"," <<rgbMean[1] << "," << rgbMean[0] << ")" <<endl;
+		cout << "(x,y,w,h)=(" << pre_roi.x <<"," << pre_roi.y << ",";
+		cout << pre_roi.width << "," << pre_roi.height <<")" <<endl;
+		cout << "(r,g,b)=(" << rgbMean[0] <<"," <<rgbMean[1] << "," ;
+		cout << rgbMean[0] << ")" <<endl << endl;
 		//-- Draw the face, only the first face is used now.
 		Point center( pre_roi.x + faces[0].width/2, pre_roi.y + faces[0].height/2  );
 		circle( frame, center, 5, Scalar( 0, 0, 255 ), 3, 8, 0 );
 		ellipse( frame, center, Size( faces[0].width/2, faces[0].height/2), 0, 0, 360,
 		Scalar( 255, 0, 0 ), 2, 8, 0 );
 		fLockedMode=true;
-		//-- Show what you got
-		imshow( MyWin_Name, frame );
+	}else{
+		cout << "(r,g,b)=(" << 0 <<"," << 0 << "," << 0 << ")" <<endl <<endl;
 	}
+
 	return nFaces;
 }
