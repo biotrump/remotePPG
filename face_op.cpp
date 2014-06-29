@@ -69,18 +69,18 @@ size_t detectFaceROI( Mat &inBuf, cv::Scalar &rgbMean, Rect & roi_new, std::vect
 	if(faces.size()){
 		Mat faceROI = gray_buf( faces[i] );
 		std::vector<Rect> eyes;
-		roi_new = faces[i];
+
 		faces[i].x = FACE_ROI_ADJUST(faces[i].x, faces[i].width);
 		faces[i].y = FACE_ROI_ADJUST(faces[i].y, faces[i].height);
 		faces[i].width = FACE_ROI_FACTOR(faces[i].width);
 		faces[i].height = FACE_ROI_FACTOR(faces[i].height);
-
+		roi_new = faces[i];
 		//computes mean over roi
 		//http://stackoverflow.com/questions/10959987/equivalent-to-cvavg-in-the-opencv-c-interface
-		#if 1
+		#if 0
 		//only the upper 1/3 face is used to calculate the PPG.
 		//this may have little SNR, but the average r,g,b is more significant
-		Mat type1FaceFOI=inBuf( Rect( FACE_ROI_ADJUST(faces[i].x, faces[i].width),
+		Mat faceROI_rgb=inBuf( Rect( FACE_ROI_ADJUST(faces[i].x, faces[i].width),
 																	FACE_ROI_ADJUST(faces[i].y, faces[i].height),
 																	FACE_ROI_FACTOR(faces[i].width),
 																	FACE_ROI_FACTOR(faces[i].height) ));
@@ -166,11 +166,13 @@ size_t SearchLockFaceDetection(Mat &frame, cv::Scalar &rgbMean, Rect & roi_new, 
 		cout << pre_roi.width << "," << pre_roi.height <<")" <<endl;
 		cout << "(r,g,b)=(" << rgbMean[0] <<"," <<rgbMean[1] << "," ;
 		cout << rgbMean[0] << ")" <<endl << endl;
+
 		//-- Draw the face, only the first face is used now.
 		Point center( pre_roi.x + faces[0].width/2, pre_roi.y + faces[0].height/2  );
 		circle( frame, center, 5, Scalar( 0, 0, 255 ), 3, 8, 0 );
-		ellipse( frame, center, Size( faces[0].width/2, faces[0].height/2), 0, 0, 360,
-		Scalar( 255, 0, 0 ), 2, 8, 0 );
+		/*ellipse( frame, center, Size( faces[0].width/2, faces[0].height/2), 0, 0, 360,
+		Scalar( 255, 0, 0 ), 2, 8, 0 );*/
+		rectangle( frame, pre_roi,Scalar( 255, 0, 0 ), 2, 8, 0 );
 		fLockedMode=true;
 	}else{
 		cout << "(r,g,b)=(" << 0 <<"," << 0 << "," << 0 << ")" <<endl <<endl;

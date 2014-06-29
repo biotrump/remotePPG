@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include "face_op.hpp"
 #include "helper.h"
+#include "fileIO.hpp"
 
 using namespace std;
 using namespace cv;
@@ -78,7 +79,7 @@ int main( int argc, char *argv[] )
 	VideoCapture vc;
 	//VideoCapture vc("face.mp4");//vc(0);
 	//VideoCapture vc("d:\\vs\\openCV\\ObjectDetect\\FaceDetect\\baby.mp4");
-	std::string meanRGBFileName;
+	std::string meanRGBxmlfile;
 
 	if(argc>1){
 		int index=-1;
@@ -94,9 +95,9 @@ int main( int argc, char *argv[] )
 				if(!vc.open(argv[i]+2)){
 					cout << " open media file"<< argv[i]+2 <<" failed." <<endl;
 				}
-				//meanRGBFileName = ExtractFilename(argv[i]+2);
+				//meanRGBxmlfile = ExtractFilename(argv[i]+2);
 				//store the data to xml
-				meanRGBFileName = ChangeExtension(argv[i]+2, ".xml");
+				meanRGBxmlfile = ChangeExtension(argv[i]+2, ".xml");
 				break;
 			/*
 			case 'f':
@@ -150,16 +151,20 @@ int main( int argc, char *argv[] )
 		height = vc.get(CV_CAP_PROP_FRAME_HEIGHT);
 		frame_ticks = tick_psec/vfps;
 		Rect face_roi;
+
+		meanXmlOpen(meanRGBxmlfile, vc);
 		for(;;){
 			f_stick = cv::getTickCount();
-			Scalar mean_rgb;
+			cv::Scalar mean_rgb;
 			vc >> frame; 	//get one frame
 	      	if(  !frame.empty() ){
 	      		size_t nFaces=0;
-				frame_no++;
+
 				//splitRGB(frame);
 				//mean_rgb=cv::mean(frame);
 				nFaces = SearchLockFaceDetection(frame, mean_rgb, face_roi);
+				meanXmlData(mean_rgb, frame_no?1:0);
+				frame_no++;
 				//fine tune the delay to fixed fps as the video file's original fps.
 				f_etick = cv::getTickCount();
 				if(f_etick > cur_tick){
@@ -184,25 +189,29 @@ int main( int argc, char *argv[] )
 				//wk_ms = 1000.0 * (frame_ticks - (ie_tick - f_stick)) / cv::getTickFrequency();
 				//wk_ms = 1000.0 * ((frame_ticks - ((double)(f_etick-f_stick)+(double)(ie_tick-is_tick) ) ) / frame_ticks);	//left ticks in a frame
 			}else{
+				meanXmlData(Scalar(0,0,0), 2);
 				printf(" --(!) No captured frame -- B5eak!");
 				break;
 			}
 _waitkey:
-		w_stick = cv::getTickCount();
-		int64 temp_delta=frame_ticks - (w_stick - f_stick) - w_pre_delta;
-		if(temp_delta < frame_ticks){
-			wk_ms = 1000.0 * (((double)frame_ticks - temp_delta) / tick_psec);
-			wk_ms = (wk_ms > (int)fperms)?(int)fperms:wk_ms;
-		}else wk_ms=fperms;
-		int c = waitKey(bWaitKey?wk_ms:1);
-		w_etick = cv::getTickCount();
-		double d_fps= vfps - fps;
-		double d_comp_ticks= d_fps/vfps * frame_ticks;
-		if((w_etick - w_stick) > d_comp_ticks)
-			w_pre_delta = w_etick - w_stick;// - d_comp_ticks*0.2;
-		else
-			w_pre_delta = 0;
-	    if( c == 27 ) { break; }
+			w_stick = cv::getTickCount();
+			int64 temp_delta=frame_ticks - (w_stick - f_stick) - w_pre_delta;
+			if(temp_delta < frame_ticks){
+				wk_ms = 1000.0 * (((double)frame_ticks - temp_delta) / tick_psec);
+				wk_ms = (wk_ms > (int)fperms)?(int)fperms:wk_ms;
+			}else wk_ms=fperms;
+			int c = waitKey(bWaitKey?wk_ms:1);
+			w_etick = cv::getTickCount();
+			double d_fps= vfps - fps;
+			double d_comp_ticks= d_fps/vfps * frame_ticks;
+			if((w_etick - w_stick) > d_comp_ticks)
+				w_pre_delta = w_etick - w_stick;// - d_comp_ticks*0.2;
+			else
+				w_pre_delta = 0;
+	    	if( c == 27 ) {
+ 	    		meanXmlData(mean_rgb, 2);
+	    		break;
+	    	}
 		}//for
 	}
   	return 0;

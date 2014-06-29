@@ -143,6 +143,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\face_op.cpp" />
+    <ClCompile Include="..\..\fileIO.cpp" />
     <ClCompile Include="..\..\videoRGB.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
