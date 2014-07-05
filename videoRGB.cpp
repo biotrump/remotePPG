@@ -216,12 +216,17 @@ _waitkey:
 		}//for
 	}
 	//test jade
-	   double *B=NULL; /* Output.        Separating matrix. nbc*nbc */
-	   double *X=NULL; /* Input/Output.  Data set nbc x nbs */
-	   int nbc=3;   /* Input.         Number of sensors  */
-	   int nbs=12;    /* Input.         Number of samples  */
+	   double *B=NULL;	/* Output.        Separating matrix. nbc*nbc */
+	   double *X=NULL;	/* Input/Output.  Data set nbc x nbs */
+	   int nbc=3;		/* Input.         Number of sensors RGB  */
+	   int nbs=12;		/* Input.         Number of samples  */
 	   Jade(B,X,nbc,nbs);
-
+	   //Y=B*X ; //the separated sources
+/*
+%   B = jadeR(X, m) is an m*n matrix such that Y=B*X are separated sources
+%    extracted from the n*T data matrix X.
+%   If m is omitted,  B=jadeR(X)  is a square n*n matrix (as many sources as sensors)
+	*/
   	return 0;
 }
 
