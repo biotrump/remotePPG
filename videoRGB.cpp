@@ -13,6 +13,7 @@
 #include "face_op.hpp"
 #include "helper.h"
 #include "fileIO.hpp"
+#include "JnS.h"
 
 using namespace std;
 using namespace cv;
@@ -214,6 +215,13 @@ _waitkey:
 	    	}
 		}//for
 	}
+	//test jade
+	   double *B=NULL; /* Output.        Separating matrix. nbc*nbc */
+	   double *X=NULL; /* Input/Output.  Data set nbc x nbs */
+	   int nbc=3;   /* Input.         Number of sensors  */
+	   int nbs=12;    /* Input.         Number of samples  */
+	   Jade(B,X,nbc,nbs);
+
   	return 0;
 }
 
