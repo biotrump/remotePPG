@@ -20,8 +20,13 @@ using namespace cv;
 
 extern String eyes_cascade_name;
 extern String face_cascade_name;
+extern String nose_cascade_name;
+extern String mouth_cascade_name;
+
 extern CascadeClassifier face_cascade;
 extern CascadeClassifier eyes_cascade;
+extern CascadeClassifier nose_cascade;
+extern CascadeClassifier mouth_cascade;
 
 String MyWin_Name = "RGB";
 
@@ -123,6 +128,8 @@ int main( int argc, char *argv[] )
   	//-- 1. Load the cascade
   	if( !face_cascade.load( face_cascade_name ) ){ printf("--(!)Error loading %s\n", face_cascade_name); return -1; };
   	if( !eyes_cascade.load( eyes_cascade_name ) ){ printf("--(!)Error loading %s\n", eyes_cascade_name); return -1; };
+	if( !nose_cascade.load( nose_cascade_name ) ){ printf("--(!)Error loading %s\n", nose_cascade_name); return -1; };
+	if( !mouth_cascade.load( mouth_cascade_name ) ){ printf("--(!)Error loading %s\n", mouth_cascade_name); return -1; };
 
   	//-- 2. Read the video stream
 	if(vc.isOpened())
@@ -215,6 +222,7 @@ _waitkey:
 	    	}
 		}//for
 	}
+#if 0
 	//test jade
 	   double *B=NULL;	/* Output.        Separating matrix. nbc*nbc */
 	   double *X=NULL;	/* Input/Output.  Data set nbc x nbs */
@@ -227,6 +235,7 @@ _waitkey:
 %    extracted from the n*T data matrix X.
 %   If m is omitted,  B=jadeR(X)  is a square n*n matrix (as many sources as sensors)
 	*/
+#endif
   	return 0;
 }
 

@@ -27,10 +27,16 @@ a--cascade="d:\\repos\\openCV\\win\\opencv\\data\\haarcascades\\haarcascade_fron
 #if defined(WIN32) || defined(_WIN32)
 //String face_cascade_name = "d:\\repos\\openCV\\win\\opencv\\data\\haarcascades\\haarcascade_frontalface_alt_tree.xml";
 //String eyes_cascade_name = "d:\\repos\\openCV\\win\\opencv\\data\\haarcascades\\haarcascade_eye.xml";
-//String face_cascade_name = "d:\\repos\\openCV\\win\\opencv\\data\\lbpcascades\\lbpcascade_frontalface.xml";//lbpcascade_profileface.xml";
-String eyes_cascade_name = "g:\\repos\\openCV\\work\\data\\haarcascades\\haarcascade_eye.xml";
+String face_cascade_name = "d:\\repos\\openCV\\work\\data\\lbpcascades\\lbpcascade_frontalface.xml";//lbpcascade_profileface.xml";
 //String face_cascade_name = "lbpcascade_frontalface.xml";//lbpcascade_profileface.xml";
-String face_cascade_name = "g:\\repos\\openCV\\work\\data\\haarcascades\\haarcascade_frontalface_alt2.xml";//lbpcascade_profileface.xml";
+//PC
+//String face_cascade_name = "g:\\repos\\openCV\\work\\data\\haarcascades\\haarcascade_frontalface_alt2.xml";//lbpcascade_profileface.xml";
+//String eyes_cascade_name = "g:\\repos\\openCV\\work\\data\\haarcascades\\haarcascade_eye.xml";
+//NB
+String eyes_cascade_name = "d:\\repos\\openCV\\work\\data\\haarcascades\\haarcascade_eye_tree_eyeglasses.xml"; //haarcascade_eye.xml;
+//String face_cascade_name = "d:\\repos\\openCV\\work\\data\\haarcascades\\haarcascade_frontalface_alt2.xml";//lbpcascade_profileface.xml";
+String nose_cascade_name = "d:\\repos\\openCV\\work\\data\\haarcascades\\haarcascade_mcs_nose.xml";
+String mouth_cascade_name = "d:\\repos\\openCV\\work\\data\\haarcascades\\haarcascade_mcs_mouth.xml";
 #endif
 
 #if defined(__linux__) || defined(LINUX) || defined(__APPLE__) || defined(ANDROID)
@@ -39,9 +45,10 @@ String eyes_cascade_name = "../../2.4.7/data/haarcascades/haarcascade_eye.xml";
 String face_cascade_name = "../../2.4.7/data/haarcascades/haarcascade_frontalface_alt2.xml";
 #endif
 
-//String eyes_cascade_name = "d:\\repos\\openCV\\win\\opencv\\data\\haarcascades\\haarcascade_eye_tree_eyeglasses.xml";
 CascadeClassifier face_cascade;
 CascadeClassifier eyes_cascade;
+CascadeClassifier nose_cascade;
+CascadeClassifier mouth_cascade;
 
 static bool fLockedMode=false;
 
@@ -62,19 +69,24 @@ size_t detectFaceROI( Mat &inBuf, cv::Scalar &rgbMean, Rect & roi_new, std::vect
 
 	if(!faces.empty())faces.clear();
 
-	face_cascade.detectMultiScale( gray_buf, faces, 1.2, 2, 0, Size(50, 50));//, inBuf.size() );
-
+	face_cascade.detectMultiScale( gray_buf, faces, 1.2, 3, CV_HAAR_SCALE_IMAGE, Size(50, 50));//, inBuf.size() );
 	//for( size_t i = 0; i < faces.size(); i++ )
 	size_t i=0;
 	if(faces.size()){
 		Mat faceROI = gray_buf( faces[i] );
-		std::vector<Rect> eyes;
-
-		faces[i].x = FACE_ROI_ADJUST(faces[i].x, faces[i].width);
-		faces[i].y = FACE_ROI_ADJUST(faces[i].y, faces[i].height);
-		faces[i].width = FACE_ROI_FACTOR(faces[i].width);
-		faces[i].height = FACE_ROI_FACTOR(faces[i].height);
-		roi_new = faces[i];
+		Mat faceROIExt; //extending for detecting eye,nose, mouth
+		std::vector<Rect> eyes, nose, mouth;
+		Rect extFace;//=faces[i];
+		/*
+		int extX = faces[i].x -  faces[i].width*(0.3/2) ;
+		extX=(extX<0)?0:extX;
+		int extY = faces[i].y - faces[i].height*(0.3/2) ;
+		extY=(extY<0)?0:extY;
+		int extHeight = faces[i].height* 1.3;
+		extHeight = (extHeight > faces[i].height)?faces[i].height:extHeight;
+		int extWidth = faces[i].width * 1.3;
+		extWidth = (extWidth > faces[i].height)?faces[i].width:extWidth;
+		*/
 		//computes mean over roi
 		//http://stackoverflow.com/questions/10959987/equivalent-to-cvavg-in-the-opencv-c-interface
 		#if 0
@@ -92,15 +104,82 @@ size_t detectFaceROI( Mat &inBuf, cv::Scalar &rgbMean, Rect & roi_new, std::vect
 		//cout << "(" << rgbMean.val[2] <<", "<< rgbMean.val[1] <<", "  <<rgbMean.val[0] << ")"<<endl;
 
 		//-- In each face, detect eyes, two eyes' distance should be less than face width and greater than half of a face??
-		eyes_cascade.detectMultiScale( faceROI, eyes, 1.1, 2, 0 |CV_HAAR_SCALE_IMAGE, Size(30, 30) );
-		if(eyes_cascade.empty()) return 0;
-		if( eyes.size() == 2)	{
+		extFace= faces[i];
+		extFace.x=faces[i].x;
+		extFace.y=faces[i].y;
+		extFace.height=faces[i].height>>1;
+		extFace.width=faces[i].width;
+		extFace.height=(extFace.height>gray_buf.rows)?gray_buf.rows:extFace.height;
+
+		faceROIExt=gray_buf( extFace );
+		//eyes_cascade.detectMultiScale( faceROIExt, eyes, 1.1, 2, 0 |CV_HAAR_SCALE_IMAGE, Size(10, 10) );
+		eyes_cascade.detectMultiScale( faceROIExt, eyes, 1.2, 1, CV_HAAR_SCALE_IMAGE, Size(8, 8) );
+		//eyes_cascade.detectMultiScale( faceROIExt, eyes, 1.1, 2);
+		//if(eyes_cascade.empty()) continue;
+		if( !eyes_cascade.empty() && (eyes.size() >= 2))	{
          for( size_t j = 0; j < eyes.size(); j++ ){ //-- Draw the eyes
+			int radius = cvRound( (eyes[j].width + eyes[j].height)*0.25 );
+#if 0
             Point eye_center( faces[i].x + eyes[j].x + eyes[j].width/2, faces[i].y + eyes[j].y + eyes[j].height/2 );
-            int radius = cvRound( (eyes[j].width + eyes[j].height)*0.25 );
             circle( inBuf, eye_center, radius, Scalar( 255, 0, 255 ), 3, 8, 0 );
+#else
+			Point eye_center( eyes[j].x + eyes[j].width/2, eyes[j].y + eyes[j].height/2 );
+			circle( inBuf(extFace), eye_center, radius, Scalar( 255, 0, 255 ), 3, 8, 0 );
+#endif
           }
 		}
+		extFace= faces[i];
+		extFace.height=faces[i].height>>1;
+		extFace.y =faces[i].y + extFace.height-1;
+		extFace.height=(extFace.height>gray_buf.rows)?gray_buf.rows:extFace.height;
+		faceROIExt=gray_buf( extFace );
+		//-- In each face, detect nose
+		nose_cascade.detectMultiScale( faceROIExt, nose, 1.3, 3, 0 |CV_HAAR_SCALE_IMAGE, Size(30, 30) );
+		//nose_cascade.detectMultiScale( faceROIExt, nose, 1.3, 3);
+		if(!nose_cascade.empty() && (nose.size()>=1)) {
+#if 0
+            //Point nose_center( faces[i].x + nose[0].x + nose[0].width/2, faces[i].y + nose[0].y + nose[0].height/2 );
+            //int radius = cvRound( (nose[0].width + nose[0].height)*0.25 );
+            //circle( inBuf, nose_center, radius, Scalar( 255, 255, 0 ), 3, 8, 0 );
+            //Rect noseROI = gray_buf( nose[0] );
+
+			nose[0].x += extFace.x;
+			nose[0].y += extFace.y;
+            rectangle( inBuf, nose[0], Scalar(255, 255, 0 ), 2, 8, 0 );
+#else
+			rectangle( inBuf(extFace), nose[0], Scalar(255, 255, 0 ), 2, 8, 0 );
+#endif
+		}
+
+		//-- In each face, detect mouth
+		extFace= faces[i];
+		extFace.height=faces[i].height>>1;
+		extFace.y =faces[i].y + extFace.height-1;
+		extFace.width=faces[i].width;
+		extFace.x =faces[i].x;
+		extFace.height=(extFace.height>gray_buf.rows)?gray_buf.rows:extFace.height;
+		//extFace.width=(extFace.width>gray_buf.cols)?gray_buf.cols:extFace.width;
+		faceROIExt=gray_buf( extFace );
+		mouth_cascade.detectMultiScale( faceROIExt, mouth, 1.3, 3, 0 |CV_HAAR_SCALE_IMAGE, Size(30, 30) );
+		//mouth_cascade.detectMultiScale( faceROIExt, mouth, 1.3, 3);
+		if(!mouth_cascade.empty() && (mouth.size()>=1 ) ){
+#if 0
+            //Point mouth_center( faces[i].x + mouth[0].x + mouth[0].width/2, faces[i].y + mouth[0].y + mouth[0].height/2 );
+            //int radius = cvRound( (mouth[0].width + mouth[0].height)*0.25 );
+            //circle( inBuf, mouth_center, radius, Scalar( 0, 0, 255 ), 3, 8, 0 );
+
+			mouth[0].x += extFace.x;
+			mouth[0].y += extFace.y;
+            rectangle( inBuf, mouth[0], Scalar(0, 0, 255), 2, 8, 0 );
+#else
+			rectangle( inBuf(extFace), mouth[0], Scalar(0, 0,  255 ), 2, 8, 0 );
+#endif
+       	}
+		/*faces[i].x = FACE_ROI_ADJUST(faces[i].x, faces[i].width);
+		faces[i].y = FACE_ROI_ADJUST(faces[i].y, faces[i].height);
+		faces[i].width = FACE_ROI_FACTOR(faces[i].width);
+		faces[i].height = FACE_ROI_FACTOR(faces[i].height);*/
+		roi_new = faces[i];
   	}
 	return faces.size();
 }
@@ -123,24 +202,16 @@ size_t SearchLockFaceDetection(Mat &frame, cv::Scalar &rgbMean, Rect & roi_new, 
 		//	if it's found, return the roi
 		//	else if it's not found, set the first time search flag and return fail
 		//TODO : the ratio start from 1.5
-	   	lock_roi.width = pre_roi.width * 1.5; lock_roi.width < frame.cols ? lock_roi.width : frame.cols;
-		//roi_new.x = pre_roi.x - pre_roi.width * 0.05;//10%/2=5% offset
-		//roi_new.x = (roi_new.x >= 0)?roi_new.x:0;
-		adjROIOrg(lock_roi.x, pre_roi.x, pre_roi.width, 0.25);
-	   	lock_roi.height = pre_roi.height * 1.5; lock_roi.height < frame.rows ? lock_roi.height : frame.rows;
-	   	//roi_new.y = pre_roi.y - pre_roi.height * 0.05;
-		//roi_new.y = (roi_new.y >= 0)?roi_new.y:0;
-		adjROIOrg(lock_roi.y, pre_roi.y, pre_roi.height, 0.25);
+	   	lock_roi.width = pre_roi.width * 1.1; lock_roi.width < frame.cols ? lock_roi.width : frame.cols;
+		adjROIOrg(lock_roi.x, pre_roi.x, pre_roi.width, 0.05);
+	   	lock_roi.height = pre_roi.height * 1.1; lock_roi.height < frame.rows ? lock_roi.height : frame.rows;
+		adjROIOrg(lock_roi.y, pre_roi.y, pre_roi.height, 0.05);
 	   	nFaces = detectFaceROI(frame(lock_roi), rgbMean, roi_new, faces);
 	   	if(!nFaces && (lock_roi.height < frame.rows) &&  (lock_roi.width < frame.cols)){//second try, by 50%
-		   	lock_roi.width = pre_roi.width * 1.8; roi_new.width < frame.cols ? lock_roi.width : frame.cols;
-			//roi_new.x = pre_roi.x - pre_roi.width * 0.25;//50%/2=25% offset
-			//roi_new.x = (roi_new.x >= 0)?roi_new.x:0;
-			adjROIOrg(lock_roi.x, pre_roi.x, pre_roi.width, 0.4);
-		   	lock_roi.height = pre_roi.height * 1.8; lock_roi.height < frame.rows ? lock_roi.height : frame.rows;
-		   	//roi_new.y = pre_roi.y - pre_roi.height * 0.25;
-			//roi_new.y = (roi_new.y >= 0)?roi_new.y:0;
-			adjROIOrg(lock_roi.y, pre_roi.y, pre_roi.height, 0.4);
+		   	lock_roi.width = pre_roi.width * 1.5; roi_new.width < frame.cols ? lock_roi.width : frame.cols;
+			adjROIOrg(lock_roi.x, pre_roi.x, pre_roi.width, 0.25);
+		   	lock_roi.height = pre_roi.height * 1.5; lock_roi.height < frame.rows ? lock_roi.height : frame.rows;
+			adjROIOrg(lock_roi.y, pre_roi.y, pre_roi.height, 0.25);
 	   		nFaces = detectFaceROI(frame(lock_roi), rgbMean, roi_new, faces);
 	   	}
 		if(!nFaces){//Final try the whole area
