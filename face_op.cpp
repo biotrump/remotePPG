@@ -50,6 +50,10 @@ CascadeClassifier eyes_cascade;
 CascadeClassifier nose_cascade;
 CascadeClassifier mouth_cascade;
 
+bool gfDetectEyes=true;
+bool gfDetectNose=true;
+bool gfDetectMouth=true;
+
 static bool fLockedMode=false;
 
 extern String MyWin_Name;
@@ -103,54 +107,58 @@ size_t detectFaceROI( Mat &inBuf, cv::Scalar &rgbMean, Rect & roi_new, std::vect
 		#endif
 		//cout << "(" << rgbMean.val[2] <<", "<< rgbMean.val[1] <<", "  <<rgbMean.val[0] << ")"<<endl;
 
-		//-- In each face, detect eyes, two eyes' distance should be less than face width and greater than half of a face??
-		extFace= faces[i];
-		extFace.x=faces[i].x;
-		extFace.y=faces[i].y;
-		extFace.height=faces[i].height>>1;
-		extFace.width=faces[i].width;
-		extFace.height=(extFace.height>gray_buf.rows)?gray_buf.rows:extFace.height;
+		if(gfDetectEyes){
+			//-- In each face, detect eyes, two eyes' distance should be less than face width and greater than half of a face??
+			extFace= faces[i];
+			extFace.x=faces[i].x;
+			extFace.y=faces[i].y;
+			extFace.height=faces[i].height>>1;
+			extFace.width=faces[i].width;
+			extFace.height=(extFace.height>gray_buf.rows)?gray_buf.rows:extFace.height;
 
-		faceROIExt=gray_buf( extFace );
-		//eyes_cascade.detectMultiScale( faceROIExt, eyes, 1.1, 2, 0 |CV_HAAR_SCALE_IMAGE, Size(10, 10) );
-		eyes_cascade.detectMultiScale( faceROIExt, eyes, 1.2, 1, CV_HAAR_SCALE_IMAGE, Size(8, 8) );
-		//eyes_cascade.detectMultiScale( faceROIExt, eyes, 1.1, 2);
-		//if(eyes_cascade.empty()) continue;
-		if( !eyes_cascade.empty() && (eyes.size() >= 2))	{
-         for( size_t j = 0; j < eyes.size(); j++ ){ //-- Draw the eyes
-			int radius = cvRound( (eyes[j].width + eyes[j].height)*0.25 );
+			faceROIExt=gray_buf( extFace );
+			//eyes_cascade.detectMultiScale( faceROIExt, eyes, 1.1, 2, 0 |CV_HAAR_SCALE_IMAGE, Size(10, 10) );
+			eyes_cascade.detectMultiScale( faceROIExt, eyes, 1.2, 1, CV_HAAR_SCALE_IMAGE, Size(8, 8) );
+			//eyes_cascade.detectMultiScale( faceROIExt, eyes, 1.1, 2);
+			//if(eyes_cascade.empty()) continue;
+			if( !eyes_cascade.empty() && (eyes.size() >= 2))	{
+	         for( size_t j = 0; j < eyes.size(); j++ ){ //-- Draw the eyes
+				int radius = cvRound( (eyes[j].width + eyes[j].height)*0.25 );
 #if 0
-            Point eye_center( faces[i].x + eyes[j].x + eyes[j].width/2, faces[i].y + eyes[j].y + eyes[j].height/2 );
-            circle( inBuf, eye_center, radius, Scalar( 255, 0, 255 ), 3, 8, 0 );
+	            Point eye_center( faces[i].x + eyes[j].x + eyes[j].width/2, faces[i].y + eyes[j].y + eyes[j].height/2 );
+	            circle( inBuf, eye_center, radius, Scalar( 255, 0, 255 ), 3, 8, 0 );
 #else
-			Point eye_center( eyes[j].x + eyes[j].width/2, eyes[j].y + eyes[j].height/2 );
-			circle( inBuf(extFace), eye_center, radius, Scalar( 255, 0, 255 ), 3, 8, 0 );
+				Point eye_center( eyes[j].x + eyes[j].width/2, eyes[j].y + eyes[j].height/2 );
+				circle( inBuf(extFace), eye_center, radius, Scalar( 255, 0, 255 ), 3, 8, 0 );
 #endif
-          }
+	          }
+			}
 		}
-		extFace= faces[i];
-		extFace.height=faces[i].height>>1;
-		extFace.y =faces[i].y + extFace.height-1;
-		extFace.height=(extFace.height>gray_buf.rows)?gray_buf.rows:extFace.height;
-		faceROIExt=gray_buf( extFace );
-		//-- In each face, detect nose
-		nose_cascade.detectMultiScale( faceROIExt, nose, 1.3, 3, 0 |CV_HAAR_SCALE_IMAGE, Size(30, 30) );
-		//nose_cascade.detectMultiScale( faceROIExt, nose, 1.3, 3);
-		if(!nose_cascade.empty() && (nose.size()>=1)) {
+		if(gfDetectNose){
+			extFace= faces[i];
+			extFace.height=faces[i].height>>1;
+			extFace.y =faces[i].y + extFace.height-1;
+			extFace.height=(extFace.height>gray_buf.rows)?gray_buf.rows:extFace.height;
+			faceROIExt=gray_buf( extFace );
+			//-- In each face, detect nose
+			nose_cascade.detectMultiScale( faceROIExt, nose, 1.3, 3, 0 |CV_HAAR_SCALE_IMAGE, Size(30, 30) );
+			//nose_cascade.detectMultiScale( faceROIExt, nose, 1.3, 3);
+			if(!nose_cascade.empty() && (nose.size()>=1)) {
 #if 0
-            //Point nose_center( faces[i].x + nose[0].x + nose[0].width/2, faces[i].y + nose[0].y + nose[0].height/2 );
-            //int radius = cvRound( (nose[0].width + nose[0].height)*0.25 );
-            //circle( inBuf, nose_center, radius, Scalar( 255, 255, 0 ), 3, 8, 0 );
-            //Rect noseROI = gray_buf( nose[0] );
+	            //Point nose_center( faces[i].x + nose[0].x + nose[0].width/2, faces[i].y + nose[0].y + nose[0].height/2 );
+	            //int radius = cvRound( (nose[0].width + nose[0].height)*0.25 );
+	            //circle( inBuf, nose_center, radius, Scalar( 255, 255, 0 ), 3, 8, 0 );
+	            //Rect noseROI = gray_buf( nose[0] );
 
-			nose[0].x += extFace.x;
-			nose[0].y += extFace.y;
-            rectangle( inBuf, nose[0], Scalar(255, 255, 0 ), 2, 8, 0 );
+				nose[0].x += extFace.x;
+				nose[0].y += extFace.y;
+	            rectangle( inBuf, nose[0], Scalar(255, 255, 0 ), 2, 8, 0 );
 #else
-			rectangle( inBuf(extFace), nose[0], Scalar(255, 255, 0 ), 2, 8, 0 );
+				rectangle( inBuf(extFace), nose[0], Scalar(255, 255, 0 ), 2, 8, 0 );
 #endif
+			}
 		}
-
+		if(gfDetectMouth){
 		//-- In each face, detect mouth
 		extFace= faces[i];
 		extFace.height=faces[i].height>>1;
@@ -164,17 +172,18 @@ size_t detectFaceROI( Mat &inBuf, cv::Scalar &rgbMean, Rect & roi_new, std::vect
 		//mouth_cascade.detectMultiScale( faceROIExt, mouth, 1.3, 3);
 		if(!mouth_cascade.empty() && (mouth.size()>=1 ) ){
 #if 0
-            //Point mouth_center( faces[i].x + mouth[0].x + mouth[0].width/2, faces[i].y + mouth[0].y + mouth[0].height/2 );
-            //int radius = cvRound( (mouth[0].width + mouth[0].height)*0.25 );
-            //circle( inBuf, mouth_center, radius, Scalar( 0, 0, 255 ), 3, 8, 0 );
+	            //Point mouth_center( faces[i].x + mouth[0].x + mouth[0].width/2, faces[i].y + mouth[0].y + mouth[0].height/2 );
+	            //int radius = cvRound( (mouth[0].width + mouth[0].height)*0.25 );
+	            //circle( inBuf, mouth_center, radius, Scalar( 0, 0, 255 ), 3, 8, 0 );
 
-			mouth[0].x += extFace.x;
-			mouth[0].y += extFace.y;
-            rectangle( inBuf, mouth[0], Scalar(0, 0, 255), 2, 8, 0 );
+				mouth[0].x += extFace.x;
+				mouth[0].y += extFace.y;
+	            rectangle( inBuf, mouth[0], Scalar(0, 0, 255), 2, 8, 0 );
 #else
-			rectangle( inBuf(extFace), mouth[0], Scalar(0, 0,  255 ), 2, 8, 0 );
+				rectangle( inBuf(extFace), mouth[0], Scalar(0, 0,  255 ), 2, 8, 0 );
 #endif
-       	}
+	       	}
+    	}
 		/*faces[i].x = FACE_ROI_ADJUST(faces[i].x, faces[i].width);
 		faces[i].y = FACE_ROI_ADJUST(faces[i].y, faces[i].height);
 		faces[i].width = FACE_ROI_FACTOR(faces[i].width);
