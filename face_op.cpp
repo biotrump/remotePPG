@@ -76,7 +76,7 @@ size_t detectFaceROI( Mat &inBuf, cv::Scalar &rgbMean, Rect & roi_new, std::vect
 	face_cascade.detectMultiScale( gray_buf, faces, 1.2, 3, CV_HAAR_SCALE_IMAGE, Size(50, 50));//, inBuf.size() );
 	//for( size_t i = 0; i < faces.size(); i++ )
 	size_t i=0;
-	if(faces.size()){
+	if(faces.size()){//faces are detected.
 		Mat faceROI = gray_buf( faces[i] );
 		Mat faceROIExt; //extending for detecting eye,nose, mouth
 		std::vector<Rect> eyes, nose, mouth;
@@ -107,6 +107,12 @@ size_t detectFaceROI( Mat &inBuf, cv::Scalar &rgbMean, Rect & roi_new, std::vect
 		#endif
 		//cout << "(" << rgbMean.val[2] <<", "<< rgbMean.val[1] <<", "  <<rgbMean.val[0] << ")"<<endl;
 
+		/*Facial landmark detection:TODOTODO
+		We can improve the speed by the predefined areas of the landmark or
+		by the last detected area. This condition should almost be true that
+		the landmark like eyes, nose, mouth, ears and hairs are almost in the fixed postions.
+		And If eyes are detected, we can estimate the possible nose, mouth.
+		*/
 		if(gfDetectEyes){
 			//-- In each face, detect eyes, two eyes' distance should be less than face width and greater than half of a face??
 			extFace= faces[i];
