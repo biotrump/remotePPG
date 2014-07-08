@@ -34,17 +34,18 @@ using namespace cv;
 inline void adjROIOrg(int& newx, int prex, int prew, double percent)
 {
 	newx =(int)( prex - prew * percent);//10%/2=5% offset
-	newx = (int)((newx >= 0)?newx:0);	
+	newx = (int)((newx >= 0)?newx:0);
 }
 
 /**
  * @function detectFaceROI
  */
-size_t detectFaceROI( Mat &inBuf, cv::Scalar &avgRGBValue, Rect & roi_new );
+//size_t detectFaceROI( Mat &inBuf, cv::Scalar &avgRGBValue, Rect & roi_new, bool fLocked=fals );
 
 /**
  * @function SearchTrackFace
  **/
-size_t detectFaceROI( Mat &frame, cv::Scalar &rgbMean, Rect & roi_new, std::vector<Rect> &faces );
+size_t detectFaceROI( Mat &frame, cv::Scalar &rgbMean, Rect & roi_new,
+	std::vector<Rect> &faces, double minRatio=-1.0);
 size_t SearchLockFaceDetection(Mat &frame, cv::Scalar &rgbMean, Rect & roi_new, bool fResetLock=false);
 #endif

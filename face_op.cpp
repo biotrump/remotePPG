@@ -50,18 +50,34 @@ CascadeClassifier eyes_cascade;
 CascadeClassifier nose_cascade;
 CascadeClassifier mouth_cascade;
 
-bool gfDetectEyes=true;
-bool gfDetectNose=true;
-bool gfDetectMouth=true;
+bool gfDetectEyes=false;//true;
+bool gfDetectNose=false;//true;
+bool gfDetectMouth=false;//true;
 
 static bool fLockedMode=false;
 
 extern String MyWin_Name;
 
+
+/*
+//Foreign Object Detection
+
+return : 0, no FODs
+		 n, FODs detected
+int FODDetection(matROI, std::vector<Rect> &fods)
+{
+
+//mouth : average the RGB of the corners' pixels of the landmark
+//The the value exceeds some threshold, it could be FODs.
+}
+*/
+
 /**
  * @function detectFaceROI
  */
-size_t detectFaceROI( Mat &inBuf, cv::Scalar &rgbMean, Rect & roi_new, std::vector<Rect> &faces )
+
+size_t detectFaceROI( Mat &inBuf, cv::Scalar &rgbMean, Rect & roi_new,
+	std::vector<Rect> &faces, double minRatio)
 {
 	Mat gray_buf;
 
@@ -72,8 +88,10 @@ size_t detectFaceROI( Mat &inBuf, cv::Scalar &rgbMean, Rect & roi_new, std::vect
 	if(face_cascade.empty())	return 0;
 
 	if(!faces.empty())faces.clear();
-
-	face_cascade.detectMultiScale( gray_buf, faces, 1.2, 3, CV_HAAR_SCALE_IMAGE, Size(50, 50));//, inBuf.size() );
+	if(minRatio> 0.0)
+		face_cascade.detectMultiScale( gray_buf, faces, 1.3, 3, CV_HAAR_SCALE_IMAGE, Size(gray_buf.cols*minRatio, gray_buf.rows*minRatio));
+	else
+		face_cascade.detectMultiScale( gray_buf, faces, 1.2, 3, CV_HAAR_SCALE_IMAGE, Size(50, 50));//, inBuf.size() );
 	//for( size_t i = 0; i < faces.size(); i++ )
 	size_t i=0;
 	if(faces.size()){//faces are detected.
@@ -124,7 +142,7 @@ size_t detectFaceROI( Mat &inBuf, cv::Scalar &rgbMean, Rect & roi_new, std::vect
 
 			faceROIExt=gray_buf( extFace );
 			//eyes_cascade.detectMultiScale( faceROIExt, eyes, 1.1, 2, 0 |CV_HAAR_SCALE_IMAGE, Size(10, 10) );
-			eyes_cascade.detectMultiScale( faceROIExt, eyes, 1.2, 1, CV_HAAR_SCALE_IMAGE, Size(8, 8) );
+			eyes_cascade.detectMultiScale( faceROIExt, eyes, 1.2, 2, CV_HAAR_SCALE_IMAGE, Size(10, 10) );
 			//eyes_cascade.detectMultiScale( faceROIExt, eyes, 1.1, 2);
 			//if(eyes_cascade.empty()) continue;
 			if( !eyes_cascade.empty() && (eyes.size() >= 2))	{
@@ -221,13 +239,13 @@ size_t SearchLockFaceDetection(Mat &frame, cv::Scalar &rgbMean, Rect & roi_new, 
 		adjROIOrg(lock_roi.x, pre_roi.x, pre_roi.width, 0.05);
 	   	lock_roi.height = pre_roi.height * 1.1; lock_roi.height < frame.rows ? lock_roi.height : frame.rows;
 		adjROIOrg(lock_roi.y, pre_roi.y, pre_roi.height, 0.05);
-	   	nFaces = detectFaceROI(frame(lock_roi), rgbMean, roi_new, faces);
+	   	nFaces = detectFaceROI(frame(lock_roi), rgbMean, roi_new, faces, 0.85);
 	   	if(!nFaces && (lock_roi.height < frame.rows) &&  (lock_roi.width < frame.cols)){//second try, by 50%
 		   	lock_roi.width = pre_roi.width * 1.5; roi_new.width < frame.cols ? lock_roi.width : frame.cols;
 			adjROIOrg(lock_roi.x, pre_roi.x, pre_roi.width, 0.25);
 		   	lock_roi.height = pre_roi.height * 1.5; lock_roi.height < frame.rows ? lock_roi.height : frame.rows;
 			adjROIOrg(lock_roi.y, pre_roi.y, pre_roi.height, 0.25);
-	   		nFaces = detectFaceROI(frame(lock_roi), rgbMean, roi_new, faces);
+	   		nFaces = detectFaceROI(frame(lock_roi), rgbMean, roi_new, faces, 0.5);
 	   	}
 		if(!nFaces){//Final try the whole area
 			fLockedMode=false;
