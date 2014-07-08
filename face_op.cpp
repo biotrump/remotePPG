@@ -40,7 +40,7 @@ String mouth_cascade_name = "d:\\repos\\openCV\\work\\data\\haarcascades\\haarca
 #endif
 
 #if defined(__linux__) || defined(LINUX) || defined(__APPLE__) || defined(ANDROID)
-String eyes_cascade_name = "../../2.4.7/data/haarcascades/haarcascade_eye.xml";
+String eyes_cascade_name = "../../2.4.7/data/haarcascades/haarcascade_mcs_lefteye_alt.xml";
 //String face_cascade_name = "../../2.4.7/data/lbpcascades/lbpcascade_frontalface.xml";
 String face_cascade_name = "../../2.4.7/data/haarcascades/haarcascade_frontalface_alt2.xml";
 #endif
@@ -50,9 +50,9 @@ CascadeClassifier eyes_cascade;
 CascadeClassifier nose_cascade;
 CascadeClassifier mouth_cascade;
 
-bool gfDetectEyes=false;//true;
-bool gfDetectNose=false;//true;
-bool gfDetectMouth=false;//true;
+bool gfDetectEyes=true;
+bool gfDetectNose=false;
+bool gfDetectMouth=false;
 
 static bool fLockedMode=false;
 
@@ -133,18 +133,17 @@ size_t detectFaceROI( Mat &inBuf, cv::Scalar &rgbMean, Rect & roi_new,
 		*/
 		if(gfDetectEyes){
 			//-- In each face, detect eyes, two eyes' distance should be less than face width and greater than half of a face??
-			extFace= faces[i];
+			//min eye_h  = face_h /  6
+			//min eye_y = face_h / 3
+			//min eye_w  = face_w / 6
 			extFace.x=faces[i].x;
-			extFace.y=faces[i].y;
-			extFace.height=faces[i].height>>1;
+			extFace.y=faces[i].y + faces[i].height / 6;
+			extFace.height=faces[i].height/3;
 			extFace.width=faces[i].width;
 			extFace.height=(extFace.height>gray_buf.rows)?gray_buf.rows:extFace.height;
-
 			faceROIExt=gray_buf( extFace );
-			//eyes_cascade.detectMultiScale( faceROIExt, eyes, 1.1, 2, 0 |CV_HAAR_SCALE_IMAGE, Size(10, 10) );
-			eyes_cascade.detectMultiScale( faceROIExt, eyes, 1.2, 2, CV_HAAR_SCALE_IMAGE, Size(10, 10) );
+			eyes_cascade.detectMultiScale( faceROIExt, eyes, 1.1, 2, CV_HAAR_SCALE_IMAGE, Size(faces[i].width/7, faces[i].height/7) );
 			//eyes_cascade.detectMultiScale( faceROIExt, eyes, 1.1, 2);
-			//if(eyes_cascade.empty()) continue;
 			if( !eyes_cascade.empty() && (eyes.size() >= 2))	{
 	         for( size_t j = 0; j < eyes.size(); j++ ){ //-- Draw the eyes
 				int radius = cvRound( (eyes[j].width + eyes[j].height)*0.25 );
@@ -158,6 +157,7 @@ size_t detectFaceROI( Mat &inBuf, cv::Scalar &rgbMean, Rect & roi_new,
 	          }
 			}
 		}
+
 		if(gfDetectNose){
 			extFace= faces[i];
 			extFace.height=faces[i].height>>1;
@@ -239,6 +239,7 @@ size_t SearchLockFaceDetection(Mat &frame, cv::Scalar &rgbMean, Rect & roi_new, 
 		adjROIOrg(lock_roi.x, pre_roi.x, pre_roi.width, 0.05);
 	   	lock_roi.height = pre_roi.height * 1.1; lock_roi.height < frame.rows ? lock_roi.height : frame.rows;
 		adjROIOrg(lock_roi.y, pre_roi.y, pre_roi.height, 0.05);
+
 	   	nFaces = detectFaceROI(frame(lock_roi), rgbMean, roi_new, faces, 0.85);
 	   	if(!nFaces && (lock_roi.height < frame.rows) &&  (lock_roi.width < frame.cols)){//second try, by 50%
 		   	lock_roi.width = pre_roi.width * 1.5; roi_new.width < frame.cols ? lock_roi.width : frame.cols;
