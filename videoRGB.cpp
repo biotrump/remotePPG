@@ -96,6 +96,7 @@ int main( int argc, char *argv[] )
 				if(!vc.open(index)){
 					cout << " open cam device index:"<< index <<"failed." <<endl;
 				}
+				meanRGBxmlfile = ChangeExtension(argv[i]+1, ".xml");
 				break;
 			case 'F':
 				if(!vc.open(argv[i]+2)){
