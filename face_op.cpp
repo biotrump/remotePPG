@@ -50,7 +50,7 @@ CascadeClassifier eyes_cascade;
 CascadeClassifier nose_cascade;
 CascadeClassifier mouth_cascade;
 
-bool gfDetectEyes=true;
+bool gfDetectEyes=false;
 bool gfDetectNose=false;
 bool gfDetectMouth=false;
 

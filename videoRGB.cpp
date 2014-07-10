@@ -29,7 +29,8 @@ extern CascadeClassifier nose_cascade;
 extern CascadeClassifier mouth_cascade;
 
 String MyWin_Name = "RGB";
-
+enum {sNone, sCamera, sVideoFile};
+int nSourceType=sNone;
 //RNG rng(12345);
 
 Scalar splitRGB(Mat in, bool bShowRGB=false)
@@ -83,12 +84,12 @@ Scalar splitRGB(Mat in, bool bShowRGB=false)
 int main( int argc, char *argv[] )
 {
 	VideoCapture vc;
+	int index=-1;
 	//VideoCapture vc("face.mp4");//vc(0);
 	//VideoCapture vc("d:\\vs\\openCV\\ObjectDetect\\FaceDetect\\baby.mp4");
 	std::string meanRGBxmlfile;
 
 	if(argc>1){
-		int index=-1;
 		for(int i=1;(i< argc) && (argv[i][0]=='-') ;i++){
 			switch(argv[i][1]){
 			case 'C':
@@ -97,6 +98,7 @@ int main( int argc, char *argv[] )
 					cout << " open cam device index:"<< index <<"failed." <<endl;
 				}
 				meanRGBxmlfile = ChangeExtension(argv[i]+1, ".xml");
+				nSourceType=sCamera;
 				break;
 			case 'F':
 				if(!vc.open(argv[i]+2)){
@@ -105,6 +107,7 @@ int main( int argc, char *argv[] )
 				//meanRGBxmlfile = ExtractFilename(argv[i]+2);
 				//store the data to xml
 				meanRGBxmlfile = ChangeExtension(argv[i]+2, ".xml");
+				nSourceType=sVideoFile;
 				break;
 			/*
 			case 'f':
@@ -132,6 +135,13 @@ int main( int argc, char *argv[] )
 	if( !nose_cascade.load( nose_cascade_name ) ){ printf("--(!)Error loading %s\n", nose_cascade_name); return -1; };
 	if( !mouth_cascade.load( mouth_cascade_name ) ){ printf("--(!)Error loading %s\n", mouth_cascade_name); return -1; };
 
+	if( (index != -1) && (nSourceType==sCamera)){
+		vc.set(CV_CAP_PROP_FOURCC ,CV_FOURCC('I', '4', '2', '0') );//'DIB '
+		vc.set(CV_CAP_PROP_FPS,10.0);
+		//vc.set(CV_CAP_PROP_FRAME_WIDTH,320);
+		//vc.set(CV_CAP_PROP_FRAME_HEIGHT,240);
+	}
+
   	//-- 2. Read the video stream
 	if(vc.isOpened())
   	{
@@ -151,16 +161,18 @@ int main( int argc, char *argv[] )
 		int wk_ms=15;
 		int64 instant_fps;
 		int64 w_stick=0,w_etick=0, w_pre_delta=0;
-
-		namedWindow( MyWin_Name);
-
+		double val = vc.get( CV_CAP_PROP_FOURCC );
+		char* fourcc = (char*) (&val);
+		int ex = static_cast<int>(vc.get(CV_CAP_PROP_FOURCC));     // Get Codec Type- Int form
+	    // Transform from int to char via Bitwise operators
+    	char EXT[] = {(char)(ex & 0XFF) , (char)((ex & 0XFF00) >> 8),(char)((ex & 0XFF0000) >> 16),(char)((ex & 0XFF000000) >> 24), 0};
 		vfps = vc.get(CV_CAP_PROP_FPS);
 		fperms = 1000.0 / vfps;
 		width = vc.get(CV_CAP_PROP_FRAME_WIDTH);
 		height = vc.get(CV_CAP_PROP_FRAME_HEIGHT);
 		frame_ticks = tick_psec/vfps;
 		Rect face_roi;
-
+		namedWindow( MyWin_Name);
 		meanXmlOpen(meanRGBxmlfile, vc);
 		for(;;){
 			f_stick = cv::getTickCount();
