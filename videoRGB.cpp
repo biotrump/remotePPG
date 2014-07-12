@@ -28,9 +28,10 @@ extern CascadeClassifier eyes_cascade;
 extern CascadeClassifier nose_cascade;
 extern CascadeClassifier mouth_cascade;
 
-String MyWin_Name = "RGB";
+cv::String MyWin_Name = "RGB";
 enum {sNone, sCamera, sVideoFile};
 int nSourceType=sNone;
+bool fFaceDetectionEna=false;
 //RNG rng(12345);
 
 Scalar splitRGB(Mat in, bool bShowRGB=false)
@@ -180,18 +181,19 @@ int main( int argc, char *argv[] )
 		frame_ticks = tick_psec/vfps;
 		Rect face_roi;
 		namedWindow( MyWin_Name);
-		meanXmlOpen(meanRGBxmlfile, vc);
+		if(fFaceDetectionEna) meanXmlOpen(meanRGBxmlfile, vc);
 		for(;;){
 			f_stick = cv::getTickCount();
 			cv::Scalar mean_rgb;
 			vc >> frame; 	//get one frame
 	      	if(  !frame.empty() ){
 	      		size_t nFaces=0;
-
 				//splitRGB(frame);
 				//mean_rgb=cv::mean(frame);
-				nFaces = SearchLockFaceDetection(frame, mean_rgb, face_roi);
-				meanXmlData(mean_rgb, frame_no?1:0);
+				nFaces = fFaceDetectionEna?SearchLockFaceDetection(frame, mean_rgb, face_roi):0;
+				if(nFaces >=1){
+					meanXmlData(mean_rgb, frame_no?1:0);
+				}
 				frame_no++;
 				//fine tune the delay to fixed fps as the video file's original fps.
 				f_etick = cv::getTickCount();

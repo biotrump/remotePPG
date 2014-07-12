@@ -150,7 +150,7 @@ size_t detectFaceROI( Mat inBuf, cv::Scalar &rgbMean, Rect & roi_new,
 #if 0
 	            Point eye_center( faces[i].x + eyes[j].x + eyes[j].width/2, faces[i].y + eyes[j].y + eyes[j].height/2 );
 	            circle( inBuf, eye_center, radius, Scalar( 255, 0, 255 ), 3, 8, 0 );
-#else			
+#else
 				Mat newROI=inBuf(extFace);
 				Point eye_center( eyes[j].x + eyes[j].width/2, eyes[j].y + eyes[j].height/2 );
 				circle( newROI, eye_center, radius, Scalar( 255, 0, 255 ), 3, 8, 0 );
@@ -265,10 +265,10 @@ size_t SearchLockFaceDetection(Mat &frame, cv::Scalar &rgbMean, Rect & roi_new, 
 
 	   			nFaces = detectFaceROI(frame(lock_roi), rgbMean, roi_new, faces, 0.5);
 	   		}
-			if(!nFaces){//Final try the whole area
-				fLockedMode=false;
-			}
 		}
+	}
+	if(!nFaces){//Final try the whole area
+		fLockedMode=false;
 	}
 	//If the first time to detect faces, so scan the whole area to find the face
 	//	If the face is found, return the face ROI
