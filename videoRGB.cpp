@@ -11,17 +11,17 @@
 #include <iostream>
 #include <stdio.h>
 #include "face_op.hpp"
-#include "helper.h"
 #include "fileIO.hpp"
+#include "helper.h"
 #include "JnS.h"
 
 using namespace std;
 using namespace cv;
 
-extern String eyes_cascade_name;
-extern String face_cascade_name;
-extern String nose_cascade_name;
-extern String mouth_cascade_name;
+extern cv::String eyes_cascade_name;
+extern cv::String face_cascade_name;
+extern cv::String nose_cascade_name;
+extern cv::String mouth_cascade_name;
 
 extern CascadeClassifier face_cascade;
 extern CascadeClassifier eyes_cascade;
@@ -96,6 +96,7 @@ int main( int argc, char *argv[] )
 				index = std::atoi( argv[i]+2 );
 				if(!vc.open(index)){
 					cout << " open cam device index:"<< index <<"failed." <<endl;
+					exit(-1);
 				}
 				meanRGBxmlfile = ChangeExtension(argv[i]+1, ".xml");
 				nSourceType=sCamera;
@@ -103,6 +104,7 @@ int main( int argc, char *argv[] )
 			case 'F':
 				if(!vc.open(argv[i]+2)){
 					cout << " open media file"<< argv[i]+2 <<" failed." <<endl;
+					exit(-1);
 				}
 				//meanRGBxmlfile = ExtractFilename(argv[i]+2);
 				//store the data to xml
@@ -127,13 +129,18 @@ int main( int argc, char *argv[] )
 		cout <<"-Cnnn: index of camera ,-1(auto),0,1,2 camera index" << endl;
 		cout <<"-Fpath: a static piture or motion picture file" << endl;
 		vc.open(-1);
+		exit(-1);
 	}
 
   	//-- 1. Load the cascade
-  	if( !face_cascade.load( face_cascade_name ) ){ printf("--(!)Error loading %s\n", face_cascade_name); return -1; };
-  	if( !eyes_cascade.load( eyes_cascade_name ) ){ printf("--(!)Error loading %s\n", eyes_cascade_name); return -1; };
-	if( !nose_cascade.load( nose_cascade_name ) ){ printf("--(!)Error loading %s\n", nose_cascade_name); return -1; };
-	if( !mouth_cascade.load( mouth_cascade_name ) ){ printf("--(!)Error loading %s\n", mouth_cascade_name); return -1; };
+  	if( !face_cascade.load( face_cascade_name ) )
+  		{ printf("--(!)Error loading %s\n", face_cascade_name.c_str()); return -1; };
+  	if( !eyes_cascade.load( eyes_cascade_name ) )
+  		{ printf("--(!)Error loading %s\n", eyes_cascade_name.c_str()); return -1; };
+	if( !nose_cascade.load( nose_cascade_name ) )
+		{ printf("--(!)Error loading %s\n", nose_cascade_name.c_str()); return -1; };
+	if( !mouth_cascade.load( mouth_cascade_name ) )
+		{ printf("--(!)Error loading %s\n", mouth_cascade_name.c_str()); return -1; };
 
 	if( (index != -1) && (nSourceType==sCamera)){
 		vc.set(CV_CAP_PROP_FOURCC ,CV_FOURCC('I', '4', '2', '0') );//'DIB '

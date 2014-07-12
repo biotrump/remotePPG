@@ -36,6 +36,7 @@ inline std::string ChangeExtension( const std::string& path, const std::string& 
 
 
 #if defined(__linux__) || defined(LINUX) || defined(__APPLE__) || defined(ANDROID)
+#include <fstream>
 void writeMatToFile(cv::Mat& m, const char* filename)
 {
     std::ofstream fout(filename);

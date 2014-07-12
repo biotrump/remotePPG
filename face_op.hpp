@@ -45,7 +45,7 @@ inline void adjROIOrg(int& newx, int prex, int prew, double percent)
 /**
  * @function SearchTrackFace
  **/
-size_t detectFaceROI( Mat &frame, cv::Scalar &rgbMean, Rect & roi_new,
+size_t detectFaceROI( Mat frame, cv::Scalar &rgbMean, Rect & roi_new,
 	std::vector<Rect> &faces, double minRatio=-1.0);
 size_t SearchLockFaceDetection(Mat &frame, cv::Scalar &rgbMean, Rect & roi_new, bool fResetLock=false);
 #endif

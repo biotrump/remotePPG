@@ -40,9 +40,10 @@ String mouth_cascade_name = "d:\\repos\\openCV\\work\\data\\haarcascades\\haarca
 #endif
 
 #if defined(__linux__) || defined(LINUX) || defined(__APPLE__) || defined(ANDROID)
-String eyes_cascade_name = "../../2.4.7/data/haarcascades/haarcascade_mcs_lefteye_alt.xml";
-//String face_cascade_name = "../../2.4.7/data/lbpcascades/lbpcascade_frontalface.xml";
-String face_cascade_name = "../../2.4.7/data/haarcascades/haarcascade_frontalface_alt2.xml";
+cv::String face_cascade_name = "/media/data/repos/openCV/work/data/lbpcascades/lbpcascade_frontalface.xml";//lbpcascade_profileface.xml";
+cv::String eyes_cascade_name = "/media/data/repos/openCV/work/data/haarcascades/haarcascade_eye_tree_eyeglasses.xml"; //haarcascade_eye.xml;
+cv::String nose_cascade_name = "/media/data/repos/openCV/work/data/haarcascades/haarcascade_mcs_nose.xml";
+cv::String mouth_cascade_name = "/media/data/repos/openCV/work/data/haarcascades/haarcascade_mcs_mouth.xml";
 #endif
 
 CascadeClassifier face_cascade;
@@ -75,7 +76,7 @@ int FODDetection(matROI, std::vector<Rect> &fods)
  * @function detectFaceROI
  */
 
-size_t detectFaceROI( Mat &inBuf, cv::Scalar &rgbMean, Rect & roi_new,
+size_t detectFaceROI( Mat inBuf, cv::Scalar &rgbMean, Rect & roi_new,
 	std::vector<Rect> &faces, double minRatio)
 {
 	Mat gray_buf;
@@ -149,9 +150,10 @@ size_t detectFaceROI( Mat &inBuf, cv::Scalar &rgbMean, Rect & roi_new,
 #if 0
 	            Point eye_center( faces[i].x + eyes[j].x + eyes[j].width/2, faces[i].y + eyes[j].y + eyes[j].height/2 );
 	            circle( inBuf, eye_center, radius, Scalar( 255, 0, 255 ), 3, 8, 0 );
-#else
+#else			
+				Mat newROI=inBuf(extFace);
 				Point eye_center( eyes[j].x + eyes[j].width/2, eyes[j].y + eyes[j].height/2 );
-				circle( inBuf(extFace), eye_center, radius, Scalar( 255, 0, 255 ), 3, 8, 0 );
+				circle( newROI, eye_center, radius, Scalar( 255, 0, 255 ), 3, 8, 0 );
 #endif
 	          }
 			}
@@ -183,7 +185,8 @@ size_t detectFaceROI( Mat &inBuf, cv::Scalar &rgbMean, Rect & roi_new,
 				nose[0].y += extFace.y;
 	            rectangle( inBuf, nose[0], Scalar(255, 255, 0 ), 2, 8, 0 );
 #else
-				rectangle( inBuf(extFace), nose[0], Scalar(255, 255, 0 ), 2, 8, 0 );
+				Mat newROI= inBuf(extFace);
+				rectangle( newROI, nose[0], Scalar(255, 255, 0 ), 2, 8, 0 );
 #endif
 			}
 		}
@@ -209,7 +212,8 @@ size_t detectFaceROI( Mat &inBuf, cv::Scalar &rgbMean, Rect & roi_new,
 				mouth[0].y += extFace.y;
 	            rectangle( inBuf, mouth[0], Scalar(0, 0, 255), 2, 8, 0 );
 #else
-				rectangle( inBuf(extFace), mouth[0], Scalar(0, 0,  255 ), 2, 8, 0 );
+				Mat newROI=inBuf(extFace);
+				rectangle(newROI , mouth[0], Scalar(0, 0,  255 ), 2, 8, 0 );
 #endif
 	       	}
     	}
