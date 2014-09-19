@@ -74,6 +74,64 @@ Scalar splitRGB(Mat in, bool bShowRGB=false)
 	//if(waitKey(30) >= 0) break;
 	return mean_rgb;
 }
+extern "C"	int print_caps(int fd);
+//http://docs.opencv.org/modules/highgui/doc/reading_and_writing_images_and_video.html
+void cvCamCap(VideoCapture vc)
+{
+/*
+opencv/modules/highgui/include/opencv2/highgui/highgui_c.h
+
+CV_CAP_PROP_POS_MSEC Current position of the video file in milliseconds or video capture timestamp.
+CV_CAP_PROP_POS_FRAMES 0-based index of the frame to be decoded/captured next.
+CV_CAP_PROP_POS_AVI_RATIO Relative position of the video file: 0 - start of the film, 1 - end of the film.
+CV_CAP_PROP_FRAME_WIDTH Width of the frames in the video stream.
+CV_CAP_PROP_FRAME_HEIGHT Height of the frames in the video stream.
+CV_CAP_PROP_FPS Frame rate.
+CV_CAP_PROP_FOURCC 4-character code of codec http://www.fourcc.org/codecs.php.
+CV_CAP_PROP_FRAME_COUNT Number of frames in the video file.
+CV_CAP_PROP_FORMAT Format of the Mat objects returned by retrieve() .
+CV_CAP_PROP_MODE Backend-specific value indicating the current capture mode.
+CV_CAP_PROP_BRIGHTNESS Brightness of the image (only for cameras).
+CV_CAP_PROP_CONTRAST Contrast of the image (only for cameras).
+CV_CAP_PROP_SATURATION Saturation of the image (only for cameras).
+CV_CAP_PROP_HUE Hue of the image (only for cameras).
+CV_CAP_PROP_GAIN Gain of the image (only for cameras).
+CV_CAP_PROP_EXPOSURE Exposure (only for cameras).
+CV_CAP_PROP_CONVERT_RGB Boolean flags indicating whether images should be converted to RGB.
+CV_CAP_PROP_WHITE_BALANCE Currently not supported
+CV_CAP_PROP_RECTIFICATION Rectification flag for stereo cameras (note: only supported by DC1394 v 2.x backend currently)
+*/
+	cout << "cam fd : " << vc.get_fd() << endl;
+	print_caps(vc.get_fd());
+	cout << "CV_CAP_PROP_POS_MSEC : " 		<< vc.get(CV_CAP_PROP_POS_MSEC) << endl;
+	cout << "CV_CAP_PROP_POS_FRAMES : " 	<< vc.get(CV_CAP_PROP_POS_FRAMES) << endl;
+	cout << "CV_CAP_PROP_POS_AVI_RATIO : " 	<< vc.get(CV_CAP_PROP_POS_AVI_RATIO) << endl;
+	cout << "CV_CAP_PROP_FRAME_WIDTH : " 	<< vc.get(CV_CAP_PROP_FRAME_WIDTH) << endl;
+	cout << "CV_CAP_PROP_FRAME_HEIGHT : " 	<< vc.get(CV_CAP_PROP_FRAME_HEIGHT) << endl;
+	cout << "CV_CAP_PROP_FPS : " 			<< vc.get(CV_CAP_PROP_FPS) << endl;
+	cout << "CV_CAP_PROP_FOURCC : " 		<< vc.get(CV_CAP_PROP_FOURCC) << endl;
+	cout << "CV_CAP_PROP_FRAME_COUNT : " 	<< vc.get(CV_CAP_PROP_FRAME_COUNT) << endl;
+	cout << "CV_CAP_PROP_FORMAT : " 		<< vc.get(CV_CAP_PROP_FORMAT) << endl;
+	cout << "CV_CAP_PROP_MODE : " 			<< vc.get(CV_CAP_PROP_MODE) <<endl;
+	cout << "CV_CAP_PROP_BRIGHTNESS : " 	<< vc.get(CV_CAP_PROP_BRIGHTNESS) << endl;
+	cout << "CV_CAP_PROP_CONTRAST : " 		<< vc.get(CV_CAP_PROP_CONTRAST) << endl;
+	cout << "CV_CAP_PROP_SATURATION : " 	<< vc.get(CV_CAP_PROP_SATURATION) << endl;
+	cout << "CV_CAP_PROP_HUE : " 			<< vc.get(CV_CAP_PROP_HUE) << endl;
+	cout << "CV_CAP_PROP_GAIN : " 			<< vc.get(CV_CAP_PROP_GAIN) << endl;
+	cout << "CV_CAP_PROP_EXPOSURE : " 		<< vc.get(CV_CAP_PROP_EXPOSURE) << endl;
+	cout << "CV_CAP_PROP_CONVERT_RGB : " 	<< vc.get(CV_CAP_PROP_CONVERT_RGB) << endl;
+//	cout << "*CV_CAP_PROP_WHITE_BALANCE : " << vc.get(CV_CAP_PROP_WHITE_BALANCE) << endl;
+	cout << "CV_CAP_PROP_WHITE_BALANCE_BLUE_U : " << vc.get(CV_CAP_PROP_WHITE_BALANCE_BLUE_U ) << endl;
+	cout << "CV_CAP_PROP_WHITE_BALANCE_RED_V : " << vc.get(CV_CAP_PROP_WHITE_BALANCE_RED_V ) << endl;
+	cout << "CV_CAP_PROP_RECTIFICATION : " 	<< vc.get(CV_CAP_PROP_RECTIFICATION) << endl;
+
+	//640x480x15fps or 30 fps is preferred!
+//	vc.get(CV_CAP_PROP_FRAME_WIDTH);
+//	vc.get(CV_CAP_PROP_FPS,15.0);
+	//vc.set(CV_CAP_PROP_FRAME_WIDTH,320);
+	//vc.set(CV_CAP_PROP_FRAME_HEIGHT,240);
+
+}
 
 /**
  * @function main
@@ -88,7 +146,12 @@ int main( int argc, char *argv[] )
 	int index=-1;
 	//VideoCapture vc("face.mp4");//vc(0);
 	//VideoCapture vc("d:\\vs\\openCV\\ObjectDetect\\FaceDetect\\baby.mp4");
-	std::string meanRGBxmlfile;
+	cv::String meanRGBxmlfile;
+	
+	cv::String myface_cascade_name;
+	cv::String myeyes_cascade_name;
+	cv::String mynose_cascade_name;
+	cv::String mymouth_cascade_name;
 
 	if(argc>1){
 		for(int i=1;(i< argc) && (argv[i][0]=='-') ;i++){
@@ -99,6 +162,7 @@ int main( int argc, char *argv[] )
 					cout << " open cam device index:"<< index <<"failed." <<endl;
 					exit(-1);
 				}
+				cvCamCap(vc);
 				meanRGBxmlfile = ChangeExtension(argv[i]+1, ".xml");
 				nSourceType=sCamera;
 				break;
@@ -112,14 +176,14 @@ int main( int argc, char *argv[] )
 				meanRGBxmlfile = ChangeExtension(argv[i]+2, ".xml");
 				nSourceType=sVideoFile;
 				break;
-			/*
 			case 'f':
-				face_cascade_name = argv[i]+2;
+				myface_cascade_name = argv[i]+2;
+				cout << "myface_cascade_name=" << myface_cascade_name << endl;
 				break;
 			case 'e':
-				eyes_cascade_name = argv[i]+2;
+				myeyes_cascade_name = argv[i]+2;
+				cout << "myeyes_cascade_name=" << myeyes_cascade_name << endl;
 				break;
-				*/
 			default:
 				break;
 			}
@@ -134,18 +198,30 @@ int main( int argc, char *argv[] )
 	}
 
   	//-- 1. Load the cascade
-  	if( !face_cascade.load( face_cascade_name ) )
-  		{ printf("--(!)Error loading %s\n", face_cascade_name.c_str()); return -1; };
-  	if( !eyes_cascade.load( eyes_cascade_name ) )
-  		{ printf("--(!)Error loading %s\n", eyes_cascade_name.c_str()); return -1; };
-	if( !nose_cascade.load( nose_cascade_name ) )
-		{ printf("--(!)Error loading %s\n", nose_cascade_name.c_str()); return -1; };
-	if( !mouth_cascade.load( mouth_cascade_name ) )
-		{ printf("--(!)Error loading %s\n", mouth_cascade_name.c_str()); return -1; };
+  	if(myface_cascade_name.empty())
+  		myface_cascade_name = face_cascade_name;
+  	if( !face_cascade.load( face_cascade_name ) ){
+  		printf("--(!)Error loading %s\n", myface_cascade_name.c_str()); return -1; };
+
+  	if(myeyes_cascade_name.empty())
+  		myeyes_cascade_name = eyes_cascade_name;
+  	if( !eyes_cascade.load( eyes_cascade_name ) ) { 
+  		printf("--(!)Error loading %s\n", myeyes_cascade_name.c_str()); return -1; };
+
+  	if(mynose_cascade_name.empty()) {
+  		mynose_cascade_name = nose_cascade_name;
+  	}
+	if( !nose_cascade.load( mynose_cascade_name ) )
+		{ printf("--(!)Error loading %s\n", mynose_cascade_name.c_str()); return -1; };
+
+  	if(mymouth_cascade_name.empty()) {
+  		mymouth_cascade_name = mouth_cascade_name;	}
+	if( !mouth_cascade.load( mymouth_cascade_name ) )
+		{ printf("--(!)Error loading %s\n", mymouth_cascade_name.c_str()); return -1; };
 
 	if( (index != -1) && (nSourceType==sCamera)){
-		vc.set(CV_CAP_PROP_FOURCC ,CV_FOURCC('I', '4', '2', '0') );//'DIB '
-		vc.set(CV_CAP_PROP_FPS,10.0);
+		//vc.set(CV_CAP_PROP_FOURCC ,CV_FOURCC('I', '4', '2', '0') );//'DIB '
+		//vc.set(CV_CAP_PROP_FPS,15.0);
 		//vc.set(CV_CAP_PROP_FRAME_WIDTH,320);
 		//vc.set(CV_CAP_PROP_FRAME_HEIGHT,240);
 	}

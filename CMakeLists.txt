@@ -21,7 +21,8 @@ endif()
 ADD_EXECUTABLE( remotePPG 
 videoRGB.cpp
 fileIO.cpp
-face_op.cpp )
+face_op.cpp
+capture-v4l2.c )
 
 #dynamic or static link
 TARGET_LINK_LIBRARIES( remotePPG ${OpenCV_LIBS} )
