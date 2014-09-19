@@ -3,7 +3,7 @@
  */
 #include <errno.h>
 #include <fcntl.h>
-#include <linux/videodev2.h>
+#include <linux/videodev2.h>	//V4L2 definitions, /include/uapi/linux/videodev2.h
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>

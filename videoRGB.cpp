@@ -109,6 +109,21 @@ CV_CAP_PROP_RECTIFICATION Rectification flag for stereo cameras (note: only supp
 	cout << "Webcam : "<< wc->GetControl(V4L2_CID_AUTO_WHITE_BALANCE) << endl;
 	wc->SetControl(V4L2_CID_AUTO_WHITE_BALANCE,1 );
 	cout << "<<Webcam : "<< wc->GetControl(V4L2_CID_AUTO_WHITE_BALANCE) << endl;
+	std::list<uint32_t> fmtLst=wc->GetPixelFormats();
+	cout << "Pixel format List size:" << fmtLst.size() << endl;
+	for (std::list<uint32_t>::const_iterator ci = fmtLst.begin(); ci != fmtLst.end(); ++ci){
+//     cout << *ci << " ";
+        char fourcc[5] = {0};
+        char c, e;
+        uint32_t fcc = *ci;
+        strncpy(fourcc, (char *) &fcc, 4);
+//         if (fmtdesc.pixelformat == V4L2_PIX_FMT_SGRBG10)
+//         support_grbg10 = 1;
+//          c = fmtdesc.flags & 1? 'C' : ' ';
+//          e = fmtdesc.flags & 2? 'E' : ' ';
+//        printf("  %s: %c%c, %s\n", fourcc, c, e, fmtdesc.description);    
+		cout << "fourcc :: " << fourcc << endl << endl;
+     }
 	delete wc;
 	cout << "CV_CAP_PROP_POS_MSEC : " 		<< vc.get(CV_CAP_PROP_POS_MSEC) << endl;
 	cout << "CV_CAP_PROP_POS_FRAMES : " 	<< vc.get(CV_CAP_PROP_POS_FRAMES) << endl;
