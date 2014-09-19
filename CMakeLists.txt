@@ -22,6 +22,8 @@ ADD_EXECUTABLE( remotePPG
 videoRGB.cpp
 fileIO.cpp
 face_op.cpp
+Webcam.cpp
+CameraFrame.cpp
 capture-v4l2.c )
 
 #dynamic or static link

@@ -14,6 +14,7 @@
 #include "fileIO.hpp"
 #include "helper.h"
 #include "JnS.h"
+#include "Webcam.hpp"
 
 using namespace std;
 using namespace cv;
@@ -101,8 +102,14 @@ CV_CAP_PROP_CONVERT_RGB Boolean flags indicating whether images should be conver
 CV_CAP_PROP_WHITE_BALANCE Currently not supported
 CV_CAP_PROP_RECTIFICATION Rectification flag for stereo cameras (note: only supported by DC1394 v 2.x backend currently)
 */
+	int fd = vc.get_fd();
 	cout << "cam fd : " << vc.get_fd() << endl;
-	print_caps(vc.get_fd());
+	print_caps(fd);
+	Webcam *wc = new Webcam(fd,0);
+	cout << "Webcam : "<< wc->GetControl(V4L2_CID_AUTO_WHITE_BALANCE) << endl;
+	wc->SetControl(V4L2_CID_AUTO_WHITE_BALANCE,1 );
+	cout << "<<Webcam : "<< wc->GetControl(V4L2_CID_AUTO_WHITE_BALANCE) << endl;
+	delete wc;
 	cout << "CV_CAP_PROP_POS_MSEC : " 		<< vc.get(CV_CAP_PROP_POS_MSEC) << endl;
 	cout << "CV_CAP_PROP_POS_FRAMES : " 	<< vc.get(CV_CAP_PROP_POS_FRAMES) << endl;
 	cout << "CV_CAP_PROP_POS_AVI_RATIO : " 	<< vc.get(CV_CAP_PROP_POS_AVI_RATIO) << endl;

@@ -25,6 +25,29 @@ static int xioctl(int fd, int request, void *arg)
         return r;
 }
 
+int GetAutoWhiteBalance(int fd)
+{
+	struct v4l2_control ctrl ={0};
+	ctrl.id = V4L2_CID_AUTO_WHITE_BALANCE;
+	if (-1 == xioctl(fd, VIDIOC_G_CTRL, &ctrl)){
+		perror("V4L2_CID_AUTO_WHITE_BALANCE");
+	}
+	printf("V4L2_CID_AUTO_WHITE_BALANCE = 0x%x\n",ctrl.value );
+	return ctrl.value;
+}
+
+int SetAutoWhiteBalance(int fd, int enable)
+{
+	struct v4l2_control ctrl ={0};
+	ctrl.id = V4L2_CID_AUTO_WHITE_BALANCE;
+	ctrl.value = enable;
+	if (-1 == xioctl(fd, VIDIOC_S_CTRL, &ctrl)){
+		perror("V4L2_CID_AUTO_WHITE_BALANCE");
+	}
+	printf("V4L2_CID_AUTO_WHITE_BALANCE = (0x%x -> 0x%x)\n",enable, GetAutoWhiteBalance(fd) );
+	return GetAutoWhiteBalance(fd) == enable;
+}
+
 int print_caps(int fd)
 {
         struct v4l2_capability caps = {};
@@ -70,7 +93,7 @@ int print_caps(int fd)
         fmtdesc.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         char fourcc[5] = {0};
         char c, e;
-        printf("  FMT : CE Desc\n--------------------\n");
+        printf("\n  FMT : CE Desc\n--------------------\n");
         while (0 == xioctl(fd, VIDIOC_ENUM_FMT, &fmtdesc))
         {
                 strncpy(fourcc, (char *)&fmtdesc.pixelformat, 4);
@@ -78,7 +101,7 @@ int print_caps(int fd)
                     support_grbg10 = 1;
                 c = fmtdesc.flags & 1? 'C' : ' ';
                 e = fmtdesc.flags & 2? 'E' : ' ';
-                printf("  %s: %c%c %s\n", fourcc, c, e, fmtdesc.description);
+                printf("  %s: %c%c, %s\n", fourcc, c, e, fmtdesc.description);
                 fmtdesc.index++;
         }
         /*
@@ -87,7 +110,6 @@ int print_caps(int fd)
             printf("Doesn't support GRBG10.\n");
             return 1;
         }*/
- 
         struct v4l2_format fmt = {0};
         fmt.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
         fmt.fmt.pix.width = 640;
@@ -100,9 +122,8 @@ int print_caps(int fd)
         if (-1 == xioctl(fd, VIDIOC_S_FMT, &fmt))
         {
             perror("Setting Pixel Format");
-            return 1;
-        }
- 
+            //return 1;
+        }else{
         strncpy(fourcc, (char *)&fmt.fmt.pix.pixelformat, 4);
         printf( "Selected Camera Mode:\n"
                 "  Width: %d\n"
@@ -113,9 +134,13 @@ int print_caps(int fd)
                 fmt.fmt.pix.height,
                 fourcc,
                 fmt.fmt.pix.field);
+		}                
+	GetAutoWhiteBalance(fd);
+
         return 0;
 }
- 
+
+
 int init_mmap(int fd)
 {
     struct v4l2_requestbuffers req = {0};
